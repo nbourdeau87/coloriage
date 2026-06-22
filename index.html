@@ -980,16 +980,15 @@ function loadDrawingToCanvas(drawing) {
     // Restaure la peinture sauvegardée (paint-only, sans contours)
     const saved = state.savedColorings[drawing.id];
     if (saved) {
+      const paintSrc = saved.paint || saved; // compat ancienne v1
       const restoreImg = new Image();
       restoreImg.onload = () => {
-        // Fond blanc d'abord
         paintCtx.fillStyle = 'white';
         paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
-        // Puis la peinture sauvegardée
         paintCtx.drawImage(restoreImg, 0, 0, paintCanvas.width, paintCanvas.height);
         pushHistory();
       };
-      restoreImg.src = saved;
+      restoreImg.src = paintSrc;
     } else {
       pushHistory();
     }
@@ -1270,9 +1269,19 @@ outlineCanvas.addEventListener('mouseup', e => {
 function saveColoring() {
   if (!state.currentDrawing) return;
   try {
-    // On sauvegarde UNIQUEMENT le paintCanvas (peinture sans contours)
-    // Les contours sont toujours regénérés depuis le SVG au chargement
-    state.savedColorings[state.currentDrawing.id] = paintCanvas.toDataURL('image/png', 0.7);
+    // Pour la miniature : composite peinture + contours dans un canvas temp
+    const tmp  = document.createElement('canvas');
+    tmp.width  = paintCanvas.width;
+    tmp.height = paintCanvas.height;
+    const tCtx = tmp.getContext('2d');
+    tCtx.drawImage(paintCanvas, 0, 0);
+    if (svgImageElement) tCtx.drawImage(svgImageElement, 0, 0, tmp.width, tmp.height);
+
+    // On stocke deux choses : la miniature (avec contours) et la peinture seule (pour restauration)
+    state.savedColorings[state.currentDrawing.id] = {
+      thumb: tmp.toDataURL('image/png', 0.6),
+      paint: paintCanvas.toDataURL('image/png', 0.7),
+    };
     localStorage.setItem('colorings', JSON.stringify(state.savedColorings));
   } catch(e) {}
 }
@@ -1315,39 +1324,16 @@ function renderGallery() {
 
     const saved = state.savedColorings[drawing.id];
     if (saved) {
+      const thumbSrc = saved.thumb || saved; // compat ancienne v1
+      const img = document.createElement('img');
+      img.src = thumbSrc;
+      img.style.cssText = 'width:90%;height:90%;object-fit:contain;border-radius:8px';
+      card.appendChild(img);
+
       const badge = document.createElement('div');
       badge.className = 'done-badge';
       badge.textContent = '✅';
       card.appendChild(badge);
-
-      // Composite peinture + contours SVG dans un canvas off-screen → img
-      const paintImg = new Image();
-      paintImg.onload = () => {
-        const tmp  = document.createElement('canvas');
-        tmp.width  = paintImg.width;
-        tmp.height = paintImg.height;
-        const tCtx = tmp.getContext('2d');
-
-        // 1. Peinture
-        tCtx.drawImage(paintImg, 0, 0);
-
-        // 2. Contours SVG par-dessus
-        const svgBlob = new Blob([drawing.svg], { type: 'image/svg+xml' });
-        const svgUrl  = URL.createObjectURL(svgBlob);
-        const svgImg  = new Image();
-        svgImg.onload = () => {
-          tCtx.drawImage(svgImg, 0, 0, tmp.width, tmp.height);
-          URL.revokeObjectURL(svgUrl);
-
-          // 3. Une fois tout rendu, on crée l'img finale
-          const finalImg = document.createElement('img');
-          finalImg.src = tmp.toDataURL('image/png', 0.7);
-          finalImg.style.cssText = 'width:90%;height:90%;object-fit:contain;border-radius:8px;position:absolute';
-          card.insertBefore(finalImg, badge);
-        };
-        svgImg.src = svgUrl;
-      };
-      paintImg.src = saved;
     } else {
       // Show SVG outline
       card.innerHTML = drawing.svg;
