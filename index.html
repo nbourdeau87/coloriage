@@ -1315,33 +1315,39 @@ function renderGallery() {
 
     const saved = state.savedColorings[drawing.id];
     if (saved) {
-      // Miniature = peinture + contours SVG superposés
-      const thumbCanvas = document.createElement('canvas');
-      thumbCanvas.style.cssText = 'width:90%;height:90%;object-fit:contain;border-radius:8px';
-      card.appendChild(thumbCanvas);
-
-      const tCtx = thumbCanvas.getContext('2d');
-      const paintImg = new Image();
-      paintImg.onload = () => {
-        thumbCanvas.width  = paintImg.width;
-        thumbCanvas.height = paintImg.height;
-        tCtx.drawImage(paintImg, 0, 0);
-        // Dessine les contours SVG par-dessus
-        const svgBlob = new Blob([drawing.svg], { type: 'image/svg+xml' });
-        const svgUrl  = URL.createObjectURL(svgBlob);
-        const svgImg  = new Image();
-        svgImg.onload = () => {
-          tCtx.drawImage(svgImg, 0, 0, thumbCanvas.width, thumbCanvas.height);
-          URL.revokeObjectURL(svgUrl);
-        };
-        svgImg.src = svgUrl;
-      };
-      paintImg.src = saved;
-
       const badge = document.createElement('div');
       badge.className = 'done-badge';
       badge.textContent = '✅';
       card.appendChild(badge);
+
+      // Composite peinture + contours SVG dans un canvas off-screen → img
+      const paintImg = new Image();
+      paintImg.onload = () => {
+        const tmp  = document.createElement('canvas');
+        tmp.width  = paintImg.width;
+        tmp.height = paintImg.height;
+        const tCtx = tmp.getContext('2d');
+
+        // 1. Peinture
+        tCtx.drawImage(paintImg, 0, 0);
+
+        // 2. Contours SVG par-dessus
+        const svgBlob = new Blob([drawing.svg], { type: 'image/svg+xml' });
+        const svgUrl  = URL.createObjectURL(svgBlob);
+        const svgImg  = new Image();
+        svgImg.onload = () => {
+          tCtx.drawImage(svgImg, 0, 0, tmp.width, tmp.height);
+          URL.revokeObjectURL(svgUrl);
+
+          // 3. Une fois tout rendu, on crée l'img finale
+          const finalImg = document.createElement('img');
+          finalImg.src = tmp.toDataURL('image/png', 0.7);
+          finalImg.style.cssText = 'width:90%;height:90%;object-fit:contain;border-radius:8px;position:absolute';
+          card.insertBefore(finalImg, badge);
+        };
+        svgImg.src = svgUrl;
+      };
+      paintImg.src = saved;
     } else {
       // Show SVG outline
       card.innerHTML = drawing.svg;
