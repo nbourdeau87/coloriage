@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="blank-translucent">
+  <meta name="apple-mobile-web-app-title" content="Coloriage">
+  <title>Coloriage 🎨</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+    body {
+      font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+      background: #87CEEB;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    /* ═══════════════════════════════
+       ÉCRAN GALERIE
+    ═══════════════════════════════ */
+    #gallery-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(160deg, #7DD3F0 0%, #A8E6CF 100%);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .gallery-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px 8px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .gallery-title {
+      font-size: clamp(22px, 5vw, 36px);
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 3px 0 rgba(0,0,0,0.15);
+      letter-spacing: 1px;
+    }
+
+    /* Tabs thèmes */
+    .theme-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 16px 10px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .theme-tab {
+      background: rgba(255,255,255,0.4);
+      border: 3px solid rgba(255,255,255,0.6);
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: clamp(16px, 3.5vw, 22px);
+      cursor: pointer;
+      transition: all 0.2s;
+      color: white;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .theme-tab.active {
+      background: white;
+      color: #4A90D9;
+      border-color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: scale(1.05);
+    }
+
+    /* Grille de dessins */
+    .drawings-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+
+    .drawing-card {
+      background: white;
+      border-radius: 18px;
+      border: 4px solid #F5C842;
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      transition: transform 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .drawing-card:active { transform: scale(0.94); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+    .drawing-card canvas.preview-canvas {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+    }
+
+    .drawing-card svg {
+      width: 85%;
+      height: 85%;
+      object-fit: contain;
+    }
+
+    .done-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 28px;
+      height: 28px;
+      background: #4CAF50;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* ═══════════════════════════════
+       ÉCRAN COLORIAGE
+    ═══════════════════════════════ */
+    #coloring-screen {
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: row;
+      background: #F0F8FF;
+    }
+
+    #coloring-screen.active { display: flex; }
+
+    /* Canvas zone */
+    .canvas-zone {
+      flex: 1;
+      position: relative;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #drawing-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 90px;
+      background: #B2EBF2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 6px;
+      gap: 6px;
+      overflow: hidden;
+      border-left: 3px solid rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+
+    /* Bouton retour */
+    .btn-back {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    .btn-back:active { transform: scale(0.9); }
+
+    .sidebar-divider {
+      width: 70%;
+      height: 2px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* Outils */
+    .tools-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .tool-btn {
+      width: 68px;
+      height: 68px;
+      background: white;
+      border: 3px solid transparent;
+      border-radius: 16px;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      transition: transform 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .tool-btn.active {
+      border-color: #4A90D9;
+      background: #E8F4FF;
+      transform: scale(1.06);
+    }
+
+    .tool-btn:active { transform: scale(0.92); }
+
+    /* Palette couleurs */
+    .palette-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 2px 0;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .palette-scroll::-webkit-scrollbar { display: none; }
+
+    .color-swatch {
+      width: 62px;
+      height: 62px;
+      border-radius: 14px;
+      cursor: pointer;
+      border: 4px solid transparent;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+      transition: transform 0.12s, border-color 0.12s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .color-swatch.selected {
+      border-color: white;
+      box-shadow: 0 0 0 3px #4A90D9, 0 3px 10px rgba(0,0,0,0.2);
+      transform: scale(1.1);
+    }
+
+    .color-swatch:active { transform: scale(0.92); }
+
+    /* Effet paillettes sur swatch */
+    .color-swatch.glitter::after {
+      content: '✨';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    /* Boutons bas */
+    .bottom-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-action {
+      width: 62px;
+      height: 62px;
+      border: none;
+      border-radius: 14px;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      transition: transform 0.15s;
+    }
+    .btn-action:active { transform: scale(0.9); }
+    .btn-undo { background: #81D4FA; }
+    .btn-clear { background: #FFAB91; }
+
+    /* ═══════════════════════════════
+       ANIMATION ENTRÉE
+    ═══════════════════════════════ */
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .drawing-card { animation: popIn 0.3s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ ÉCRAN GALERIE ═══ -->
+<div id="gallery-screen">
+  <div class="gallery-header">
+    <div class="gallery-title">🎨 Mes Coloriages</div>
+  </div>
+
+  <div class="theme-tabs" id="theme-tabs"></div>
+
+  <div class="drawings-grid" id="drawings-grid"></div>
+</div>
+
+<!-- ═══ ÉCRAN COLORIAGE ═══ -->
+<div id="coloring-screen">
+  <div class="canvas-zone">
+    <canvas id="drawing-canvas"></canvas>
+  </div>
+
+  <div class="sidebar">
+    <button class="btn-back" id="btn-back">◀</button>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="tools-row">
+      <button class="tool-btn active" id="tool-brush" title="Pinceau">🖌️</button>
+      <button class="tool-btn" id="tool-glitter" title="Paillettes">✨</button>
+      <button class="tool-btn" id="tool-fill" title="Remplissage">🪣</button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="palette-scroll" id="palette"></div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="bottom-btns">
+      <button class="btn-action btn-undo" id="btn-undo">↩️</button>
+      <button class="btn-action btn-clear" id="btn-clear">🗑️</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DONNÉES — DESSINS SVG
+// ═══════════════════════════════════════════════════════
+
+const THEMES = [
+  { id: 'animaux', label: '🦁 Animaux' },
+  { id: 'dinos',   label: '🦕 Dinos'   },
+  { id: 'vehicules', label: '🚗 Véhicules' },
+];
+
+const DRAWINGS = {
+  animaux: [
+    { id: 'chat',    name: 'Chat',    svg: svgChat()    },
+    { id: 'chien',   name: 'Chien',   svg: svgChien()   },
+    { id: 'lapin',   name: 'Lapin',   svg: svgLapin()   },
+    { id: 'lion',    name: 'Lion',    svg: svgLion()    },
+    { id: 'elephant',name: 'Éléphant',svg: svgElephant()},
+    { id: 'grenouille',name:'Grenouille',svg:svgGrenouille()},
+  ],
+  dinos: [
+    { id: 'trex',    name: 'T-Rex',   svg: svgTrex()    },
+    { id: 'tricera', name: 'Tricéra', svg: svgTricera()  },
+    { id: 'brachio', name: 'Brachi',  svg: svgBrachio() },
+    { id: 'steggo',  name: 'Stégosaure', svg: svgSteggo()},
+  ],
+  vehicules: [
+    { id: 'voiture', name: 'Voiture', svg: svgVoiture() },
+    { id: 'camion',  name: 'Camion',  svg: svgCamion()  },
+    { id: 'avion',   name: 'Avion',   svg: svgAvion()   },
+    { id: 'bateau',  name: 'Bateau',  svg: svgBateau()  },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════
+//  SVG DRAWINGS — contours noirs épais, style enfantin
+// ═══════════════════════════════════════════════════════
+
+function svgBase(content, vb='0 0 200 200') {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" style="overflow:visible">
+  <style>
+    .outline { fill: white; stroke: #111; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+    .detail  { fill: none;  stroke: #111; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .dot     { fill: #111;  stroke: none; }
+  </style>
+  ${content}
+  </svg>`;
+}
+
+function svgChat() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="100" cy="130" rx="55" ry="50"/>
+    <!-- tête -->
+    <circle class="outline" cx="100" cy="75" r="42"/>
+    <!-- oreilles -->
+    <polygon class="outline" points="68,45 58,18 82,38"/>
+    <polygon class="outline" points="132,45 142,18 118,38"/>
+    <!-- yeux -->
+    <ellipse class="outline" cx="85" cy="70" rx="12" ry="13"/>
+    <ellipse class="outline" cx="115" cy="70" rx="12" ry="13"/>
+    <circle class="dot" cx="87" cy="70" r="6"/>
+    <circle class="dot" cx="117" cy="70" r="6"/>
+    <!-- reflets -->
+    <circle style="fill:white" cx="90" cy="66" r="3"/>
+    <circle style="fill:white" cx="120" cy="66" r="3"/>
+    <!-- nez -->
+    <ellipse class="dot" cx="100" cy="85" rx="6" ry="5"/>
+    <!-- bouche -->
+    <path class="detail" d="M94,90 Q100,97 106,90"/>
+    <!-- moustaches -->
+    <line class="detail" x1="60" y1="84" x2="87" y2="87"/>
+    <line class="detail" x1="60" y1="90" x2="87" y2="90"/>
+    <line class="detail" x1="113" y1="87" x2="140" y2="84"/>
+    <line class="detail" x1="113" y1="90" x2="140" y2="90"/>
+    <!-- queue -->
+    <path class="outline" d="M150,165 Q180,120 165,90 Q158,75 150,95"/>
+    <!-- pattes avant -->
+    <ellipse class="outline" cx="78" cy="172" rx="20" ry="14"/>
+    <ellipse class="outline" cx="122" cy="172" rx="20" ry="14"/>
+  `);
+}
+
+function svgChien() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="100" cy="135" rx="52" ry="45"/>
+    <!-- tête -->
+    <circle class="outline" cx="100" cy="78" r="40"/>
+    <!-- oreilles tombantes -->
+    <ellipse class="outline" cx="68" cy="82" rx="18" ry="28" transform="rotate(-15,68,82)"/>
+    <ellipse class="outline" cx="132" cy="82" rx="18" ry="28" transform="rotate(15,132,82)"/>
+    <!-- yeux -->
+    <circle class="outline" cx="86" cy="70" r="13"/>
+    <circle class="outline" cx="114" cy="70" r="13"/>
+    <circle class="dot" cx="88" cy="70" r="7"/>
+    <circle class="dot" cx="116" cy="70" r="7"/>
+    <circle style="fill:white" cx="91" cy="66" r="3"/>
+    <circle style="fill:white" cx="119" cy="66" r="3"/>
+    <!-- museau -->
+    <ellipse class="outline" cx="100" cy="90" rx="20" ry="14"/>
+    <ellipse class="dot" cx="100" cy="83" rx="7" ry="6"/>
+    <path class="detail" d="M93,92 Q100,99 107,92"/>
+    <!-- queue -->
+    <path class="outline" d="M148,120 Q175,95 168,75 Q163,62 152,80"/>
+    <!-- pattes -->
+    <ellipse class="outline" cx="78" cy="174" rx="20" ry="13"/>
+    <ellipse class="outline" cx="122" cy="174" rx="20" ry="13"/>
+  `);
+}
+
+function svgLapin() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="100" cy="138" rx="48" ry="50"/>
+    <!-- tête -->
+    <ellipse class="outline" cx="100" cy="82" rx="36" ry="34"/>
+    <!-- longues oreilles -->
+    <ellipse class="outline" cx="82" cy="38" rx="14" ry="32"/>
+    <ellipse class="outline" cx="118" cy="38" rx="14" ry="32"/>
+    <!-- intérieur oreilles -->
+    <ellipse class="detail" cx="82" cy="38" rx="8" ry="24"/>
+    <ellipse class="detail" cx="118" cy="38" rx="8" ry="24"/>
+    <!-- yeux -->
+    <circle class="outline" cx="87" cy="76" r="12"/>
+    <circle class="outline" cx="113" cy="76" r="12"/>
+    <circle class="dot" cx="89" cy="76" r="6"/>
+    <circle class="dot" cx="115" cy="76" r="6"/>
+    <circle style="fill:white" cx="92" cy="72" r="3"/>
+    <circle style="fill:white" cx="118" cy="72" r="3"/>
+    <!-- nez -->
+    <ellipse style="fill:#FFB6C1;stroke:#111;stroke-width:3" cx="100" cy="88" rx="6" ry="5"/>
+    <path class="detail" d="M94,92 Q100,99 106,92"/>
+    <!-- moustaches -->
+    <line class="detail" x1="62" y1="87" x2="88" y2="90"/>
+    <line class="detail" x1="62" y1="93" x2="88" y2="92"/>
+    <line class="detail" x1="112" y1="90" x2="138" y2="87"/>
+    <line class="detail" x1="112" y1="92" x2="138" y2="93"/>
+    <!-- queue -->
+    <circle class="outline" cx="148" cy="160" r="14"/>
+    <!-- pattes -->
+    <ellipse class="outline" cx="78" cy="180" rx="22" ry="13"/>
+    <ellipse class="outline" cx="122" cy="180" rx="22" ry="13"/>
+  `);
+}
+
+function svgLion() {
+  return svgBase(`
+    <!-- crinière -->
+    <circle style="fill:white;stroke:#111;stroke-width:6" cx="100" cy="88" r="56"/>
+    <!-- crinière details -->
+    <path class="detail" d="M60,60 Q50,40 65,30"/>
+    <path class="detail" d="M80,45 Q75,25 90,20"/>
+    <path class="detail" d="M100,42 Q100,22 100,15"/>
+    <path class="detail" d="M120,45 Q125,25 110,20"/>
+    <path class="detail" d="M140,60 Q150,40 135,30"/>
+    <!-- tête -->
+    <circle class="outline" cx="100" cy="88" r="38"/>
+    <!-- corps -->
+    <ellipse class="outline" cx="100" cy="148" rx="42" ry="38"/>
+    <!-- yeux -->
+    <ellipse class="outline" cx="86" cy="80" rx="12" ry="13"/>
+    <ellipse class="outline" cx="114" cy="80" rx="12" ry="13"/>
+    <circle class="dot" cx="88" cy="80" r="6"/>
+    <circle class="dot" cx="116" cy="80" r="6"/>
+    <circle style="fill:white" cx="91" cy="76" r="3"/>
+    <circle style="fill:white" cx="119" cy="76" r="3"/>
+    <!-- museau -->
+    <ellipse class="outline" cx="100" cy="98" rx="18" ry="13"/>
+    <circle class="dot" cx="100" cy="91" r="6"/>
+    <path class="detail" d="M93,101 Q100,108 107,101"/>
+    <!-- moustaches -->
+    <line class="detail" x1="65" y1="96" x2="86" y2="98"/>
+    <line class="detail" x1="114" y1="98" x2="135" y2="96"/>
+    <!-- queue avec touffe -->
+    <path class="outline" d="M142,165 Q170,140 165,110"/>
+    <ellipse class="outline" cx="165" cy="104" rx="12" ry="16"/>
+    <!-- pattes -->
+    <ellipse class="outline" cx="78" cy="180" rx="20" ry="12"/>
+    <ellipse class="outline" cx="122" cy="180" rx="20" ry="12"/>
+  `);
+}
+
+function svgElephant() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="105" cy="138" rx="62" ry="52"/>
+    <!-- tête -->
+    <ellipse class="outline" cx="88" cy="78" rx="44" ry="40"/>
+    <!-- grande oreille -->
+    <ellipse class="outline" cx="52" cy="82" rx="24" ry="34"/>
+    <ellipse class="outline" cx="128" cy="82" rx="20" ry="28"/>
+    <!-- trompe -->
+    <path class="outline" d="M72,102 Q52,118 48,138 Q45,150 56,155 Q67,158 68,145 Q70,132 85,120"/>
+    <!-- défense -->
+    <path class="outline" d="M80,108 Q65,118 62,130 Q62,136 68,134 Q76,126 82,115"/>
+    <!-- yeux -->
+    <circle class="outline" cx="80" cy="68" r="11"/>
+    <circle class="dot" cx="82" cy="68" r="6"/>
+    <circle style="fill:white" cx="85" cy="64" r="3"/>
+    <!-- pattes -->
+    <rect class="outline" x="60" y="175" width="28" height="22" rx="10"/>
+    <rect class="outline" x="118" y="175" width="28" height="22" rx="10"/>
+    <rect class="outline" x="78" y="178" width="24" height="18" rx="8"/>
+    <rect class="outline" x="100" y="178" width="24" height="18" rx="8"/>
+    <!-- queue -->
+    <path class="outline" d="M162,135 Q178,125 175,110"/>
+    <ellipse class="outline" cx="175" cy="107" rx="8" ry="10"/>
+  `);
+}
+
+function svgGrenouille() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="100" cy="140" rx="54" ry="46"/>
+    <!-- tête -->
+    <ellipse class="outline" cx="100" cy="85" rx="46" ry="38"/>
+    <!-- yeux globuleux -->
+    <circle class="outline" cx="76" cy="58" r="22"/>
+    <circle class="outline" cx="124" cy="58" r="22"/>
+    <circle class="dot" cx="78" cy="58" r="12"/>
+    <circle class="dot" cx="126" cy="58" r="12"/>
+    <circle style="fill:white" cx="83" cy="52" r="5"/>
+    <circle style="fill:white" cx="131" cy="52" r="5"/>
+    <!-- narines -->
+    <circle class="dot" cx="94" cy="84" r="4"/>
+    <circle class="dot" cx="106" cy="84" r="4"/>
+    <!-- grande bouche souriante -->
+    <path class="outline" d="M64,98 Q100,122 136,98"/>
+    <!-- pattes arrière -->
+    <path class="outline" d="M54,165 Q30,175 18,168 Q10,162 22,155 Q34,148 50,158"/>
+    <path class="outline" d="M146,165 Q170,175 182,168 Q190,162 178,155 Q166,148 150,158"/>
+    <!-- pattes avant -->
+    <path class="outline" d="M65,142 Q42,152 38,162 Q40,168 48,164"/>
+    <path class="outline" d="M135,142 Q158,152 162,162 Q160,168 152,164"/>
+  `);
+}
+
+function svgTrex() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="95" cy="125" rx="50" ry="42"/>
+    <!-- grosse tête -->
+    <ellipse class="outline" cx="148" cy="72" rx="42" ry="32"/>
+    <!-- cou -->
+    <path class="outline" d="M108,100 L128,55 L148,45 L162,58 L145,105"/>
+    <!-- mâchoire -->
+    <path class="outline" d="M118,80 Q148,95 178,80"/>
+    <!-- dents -->
+    <path style="fill:white;stroke:#111;stroke-width:3" d="M122,78 L126,90 L130,78 L134,90 L138,78 L142,90 L146,78 L150,90 L154,78 L158,90 L162,78"/>
+    <!-- oeil -->
+    <circle class="outline" cx="158" cy="62" r="12"/>
+    <circle class="dot" cx="160" cy="62" r="6"/>
+    <circle style="fill:white" cx="163" cy="58" r="3"/>
+    <!-- petits bras -->
+    <path class="outline" d="M115,105 Q95,92 90,80 Q88,73 95,75 Q102,80 108,95"/>
+    <!-- grandes pattes -->
+    <path class="outline" d="M75,163 Q65,178 55,185 Q45,188 44,178 Q48,168 65,162"/>
+    <path class="outline" d="M115,163 Q118,180 108,188 Q98,192 96,182 Q98,170 110,162"/>
+    <!-- griffes -->
+    <path class="detail" d="M50,178 L44,185"/>
+    <path class="detail" d="M56,183 L52,191"/>
+    <!-- queue -->
+    <path class="outline" d="M50,130 Q20,125 8,115 Q4,108 12,106 Q22,106 48,118"/>
+    <!-- dos dentelé -->
+    <path class="detail" d="M80,86 Q88,74 96,86 Q104,74 112,86 Q120,74 128,86"/>
+  `);
+}
+
+function svgTricera() {
+  return svgBase(`
+    <!-- corps massif -->
+    <ellipse class="outline" cx="95" cy="130" rx="62" ry="50"/>
+    <!-- tête avec collerette -->
+    <ellipse class="outline" cx="158" cy="80" rx="36" ry="42"/>
+    <!-- collerette -->
+    <ellipse class="outline" cx="148" cy="72" rx="50" ry="55"/>
+    <ellipse style="fill:white;stroke:none" cx="148" cy="78" rx="36" ry="42"/>
+    <!-- cou -->
+    <path class="outline" d="M100,95 L128,58 L158,44 L175,65 L160,122"/>
+    <!-- 3 cornes -->
+    <path class="outline" d="M170,52 L180,22 L188,52"/>
+    <path class="outline" d="M148,42 L152,14 L162,42"/>
+    <path class="outline" d="M165,68 L178,48 L182,68"/>
+    <!-- oeil -->
+    <circle class="outline" cx="165" cy="72" r="11"/>
+    <circle class="dot" cx="167" cy="72" r="6"/>
+    <circle style="fill:white" cx="170" cy="68" r="3"/>
+    <!-- bouche -->
+    <path class="outline" d="M155,95 Q168,102 178,95"/>
+    <!-- pattes -->
+    <rect class="outline" x="52" y="168" width="26" height="24" rx="10"/>
+    <rect class="outline" x="88" y="172" width="26" height="20" rx="10"/>
+    <rect class="outline" x="112" y="172" width="26" height="20" rx="10"/>
+    <rect class="outline" x="142" y="168" width="26" height="24" rx="10"/>
+    <!-- queue -->
+    <path class="outline" d="M36,128 Q14,118 8,105 Q6,96 16,98 Q26,102 36,115"/>
+    <!-- dos motif -->
+    <path class="detail" d="M55,85 Q65,75 75,85 Q85,75 95,85"/>
+  `);
+}
+
+function svgBrachio() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="90" cy="148" rx="55" ry="40"/>
+    <!-- long cou -->
+    <path class="outline" d="M100,110 Q108,70 115,40 Q118,28 130,26 Q142,24 145,36 Q142,48 132,52 Q122,56 118,90 L115,115"/>
+    <!-- tête petite -->
+    <ellipse class="outline" cx="136" cy="28" rx="20" ry="16"/>
+    <!-- oeil -->
+    <circle class="outline" cx="142" cy="22" r="8"/>
+    <circle class="dot" cx="144" cy="22" r="4"/>
+    <!-- narines -->
+    <circle class="dot" cx="148" cy="28" r="3"/>
+    <!-- bouche -->
+    <path class="detail" d="M130,34 Q136,40 144,36"/>
+    <!-- 4 pattes -->
+    <rect class="outline" x="50" y="178" width="24" height="18" rx="8"/>
+    <rect class="outline" x="82" y="180" width="22" height="16" rx="8"/>
+    <rect class="outline" x="108" y="180" width="22" height="16" rx="8"/>
+    <rect class="outline" x="136" y="178" width="24" height="18" rx="8"/>
+    <!-- queue -->
+    <path class="outline" d="M38,148 Q18,152 10,145 Q6,138 14,134 Q24,132 36,140"/>
+    <!-- taches -->
+    <circle class="detail" cx="78" cy="135" r="10"/>
+    <circle class="detail" cx="105" cy="128" r="8"/>
+    <circle class="detail" cx="88" cy="155" r="9"/>
+  `);
+}
+
+function svgSteggo() {
+  return svgBase(`
+    <!-- corps -->
+    <ellipse class="outline" cx="98" cy="148" rx="62" ry="40"/>
+    <!-- tête petite -->
+    <ellipse class="outline" cx="158" cy="128" rx="24" ry="18"/>
+    <!-- cou -->
+    <path class="outline" d="M112,115 L142,115 L155,118 L158,110 L145,105 L110,108"/>
+    <!-- plaques sur le dos (signature stégosaure) -->
+    <path class="outline" d="M58,110 Q52,88 62,80 Q68,76 72,88 Q76,100 70,112"/>
+    <path class="outline" d="M78,104 Q74,78 84,68 Q92,62 96,76 Q98,90 90,106"/>
+    <path class="outline" d="M100,102 Q98,74 108,64 Q116,58 118,72 Q120,88 112,104"/>
+    <path class="outline" d="M122,104 Q122,80 130,70 Q136,64 138,78 Q140,92 132,106"/>
+    <!-- oeil -->
+    <circle class="outline" cx="165" cy="124" r="9"/>
+    <circle class="dot" cx="167" cy="124" r="5"/>
+    <!-- bouche -->
+    <path class="detail" d="M155,133 Q160,140 168,136"/>
+    <!-- pattes -->
+    <rect class="outline" x="55" y="178" width="24" height="18" rx="8"/>
+    <rect class="outline" x="85" y="182" width="22" height="14" rx="7"/>
+    <rect class="outline" x="110" y="182" width="22" height="14" rx="7"/>
+    <rect class="outline" x="138" y="178" width="24" height="18" rx="8"/>
+    <!-- queue avec pointes -->
+    <path class="outline" d="M38,150 Q18,148 10,140"/>
+    <path class="outline" d="M10,140 Q4,130 12,126 Q20,122 28,130 Q32,138 24,144"/>
+    <!-- narine -->
+    <circle class="dot" cx="175" cy="126" r="3"/>
+  `);
+}
+
+function svgVoiture() {
+  return svgBase(`
+    <!-- carrosserie bas -->
+    <rect class="outline" x="22" y="120" width="158" height="52" rx="16"/>
+    <!-- toit -->
+    <path class="outline" d="M55,120 Q65,76 85,68 L118,68 Q138,76 148,120"/>
+    <!-- vitres -->
+    <path class="outline" d="M68,116 Q74,84 88,78 L112,78 Q126,84 132,116 Z"/>
+    <line class="detail" x1="100" y1="78" x2="100" y2="116"/>
+    <!-- roues -->
+    <circle class="outline" cx="62" cy="172" r="26"/>
+    <circle style="fill:#ddd;stroke:#111;stroke-width:4" cx="62" cy="172" r="16"/>
+    <circle class="dot" cx="62" cy="172" r="6"/>
+    <circle class="outline" cx="140" cy="172" r="26"/>
+    <circle style="fill:#ddd;stroke:#111;stroke-width:4" cx="140" cy="172" r="16"/>
+    <circle class="dot" cx="140" cy="172" r="6"/>
+    <!-- phares -->
+    <rect class="outline" x="22" y="128" width="22" height="16" rx="6"/>
+    <rect class="outline" x="158" y="128" width="22" height="16" rx="6"/>
+    <!-- poignée -->
+    <rect class="detail" x="88" y="128" width="26" height="8" rx="4"/>
+    <!-- pare-chocs -->
+    <rect class="outline" x="18" y="158" width="16" height="10" rx="4"/>
+    <rect class="outline" x="168" y="158" width="16" height="10" rx="4"/>
+  `);
+}
+
+function svgCamion() {
+  return svgBase(`
+    <!-- remorque -->
+    <rect class="outline" x="15" y="96" width="110" height="76" rx="10"/>
+    <!-- cabine -->
+    <rect class="outline" x="122" y="112" width="68" height="60" rx="12"/>
+    <!-- toit cabine arrondi -->
+    <path class="outline" d="M124,112 Q132,82 150,76 Q168,72 184,84 Q192,94 188,112"/>
+    <!-- vitre cabine -->
+    <path class="outline" d="M134,110 Q138,88 152,82 Q166,78 178,90 Q182,100 180,110 Z"/>
+    <!-- cheminée -->
+    <rect class="outline" x="150" y="56" width="14" height="26" rx="6"/>
+    <!-- roues -->
+    <circle class="outline" cx="48" cy="172" r="22"/>
+    <circle style="fill:#ddd;stroke:#111;stroke-width:4" cx="48" cy="172" r="13"/>
+    <circle class="dot" cx="48" cy="172" r="5"/>
+    <circle class="outline" cx="90" cy="172" r="22"/>
+    <circle style="fill:#ddd;stroke:#111;stroke-width:4" cx="90" cy="172" r="13"/>
+    <circle class="dot" cx="90" cy="172" r="5"/>
+    <circle class="outline" cx="156" cy="172" r="22"/>
+    <circle style="fill:#ddd;stroke:#111;stroke-width:4" cx="156" cy="172" r="13"/>
+    <circle class="dot" cx="156" cy="172" r="5"/>
+    <!-- phare -->
+    <rect class="outline" x="182" y="126" width="14" height="12" rx="4"/>
+    <!-- lignes remorque -->
+    <line class="detail" x1="15" y1="122" x2="125" y2="122"/>
+    <line class="detail" x1="15" y1="146" x2="125" y2="146"/>
+  `);
+}
+
+function svgAvion() {
+  return svgBase(`
+    <!-- fuselage -->
+    <ellipse class="outline" cx="100" cy="105" rx="75" ry="28"/>
+    <!-- nez -->
+    <ellipse class="outline" cx="164" cy="105" rx="22" ry="20"/>
+    <!-- queue -->
+    <ellipse class="outline" cx="32" cy="105" rx="20" ry="16"/>
+    <!-- aile principale -->
+    <path class="outline" d="M68,105 L38,62 L30,66 L52,105 Z"/>
+    <path class="outline" d="M68,105 L38,148 L30,144 L52,105 Z"/>
+    <!-- aile droite -->
+    <path class="outline" d="M122,105 L152,75 L158,79 L138,105 Z"/>
+    <path class="outline" d="M122,105 L152,135 L158,131 L138,105 Z"/>
+    <!-- dérive verticale -->
+    <path class="outline" d="M40,105 L25,75 L35,72 L55,105 Z"/>
+    <!-- hublots -->
+    <circle class="outline" cx="90" cy="98" r="10"/>
+    <circle class="outline" cx="115" cy="98" r="10"/>
+    <circle class="outline" cx="140" cy="98" r="10"/>
+    <!-- cockpit -->
+    <ellipse class="outline" cx="162" cy="100" rx="14" ry="10"/>
+    <!-- moteurs -->
+    <ellipse class="outline" cx="52" cy="82" rx="12" ry="8"/>
+    <ellipse class="outline" cx="52" cy="128" rx="12" ry="8"/>
+  `);
+}
+
+function svgBateau() {
+  return svgBase(`
+    <!-- coque -->
+    <path class="outline" d="M18,130 Q100,165 182,130 L170,158 Q100,182 30,158 Z"/>
+    <!-- pont -->
+    <rect class="outline" x="35" y="100" width="132" height="32" rx="6"/>
+    <!-- cabine -->
+    <rect class="outline" x="65" y="62" width="72" height="40" rx="8"/>
+    <!-- fenêtres cabine -->
+    <circle class="outline" cx="85" cy="82" r="10"/>
+    <circle class="outline" cx="102" cy="82" r="10"/>
+    <circle class="outline" cx="119" cy="82" r="10"/>
+    <!-- mât -->
+    <line class="detail" x1="100" y1="62" x2="100" y2="18"/>
+    <!-- voile -->
+    <path class="outline" d="M100,22 L100,58 L72,52 Z"/>
+    <path class="outline" d="M100,22 L100,58 L128,52 Z"/>
+    <!-- drapeau -->
+    <path style="fill:#FF4444;stroke:#111;stroke-width:3" d="M100,18 L118,12 L100,6 Z"/>
+    <!-- hublots coque -->
+    <circle class="outline" cx="65" cy="140" r="8"/>
+    <circle class="outline" cx="100" cy="145" r="8"/>
+    <circle class="outline" cx="135" cy="140" r="8"/>
+    <!-- vagues -->
+    <path class="detail" d="M18,155 Q35,148 50,155 Q65,162 80,155"/>
+    <path class="detail" d="M120,155 Q135,148 150,155 Q165,162 180,155"/>
+  `);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PALETTE DE COULEURS
+// ═══════════════════════════════════════════════════════
+
+const COLORS = [
+  '#FF0000','#FF4500','#FF8C00','#FFD700','#FFFF00',
+  '#ADFF2F','#00FF00','#00CED1','#00BFFF','#0000FF',
+  '#8A2BE2','#FF1493','#FF69B4','#FF6347','#CD853F',
+  '#FFFFFF','#C0C0C0','#808080','#000000','#8B4513',
+  '#FFF8DC','#98FB98','#87CEEB','#DDA0DD','#F0E68C',
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+
+const state = {
+  currentTheme: 'animaux',
+  currentTool: 'brush',  // brush | glitter | fill
+  currentColor: '#FF0000',
+  currentDrawing: null,
+  isDrawing: false,
+  history: [],      // snapshots pour undo
+  savedColorings: {},  // { drawingId: dataURL }
+};
+
+// ═══════════════════════════════════════════════════════
+//  CANVAS
+// ═══════════════════════════════════════════════════════
+
+const canvas = document.getElementById('drawing-canvas');
+const ctx = canvas.getContext('2d');
+let svgImageElement = null;
+let glitterParticles = [];
+
+function resizeCanvas() {
+  const zone = canvas.parentElement;
+  const w = zone.clientWidth;
+  const h = zone.clientHeight;
+  const size = Math.min(w, h) * 0.98;
+
+  // Save current drawing before resize
+  let saved = null;
+  if (canvas.width > 0 && canvas.height > 0) {
+    saved = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  }
+
+  canvas.width = size;
+  canvas.height = size;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  canvas.style.position = 'relative';
+
+  if (saved && svgImageElement) {
+    // Redraw SVG then restore painting
+    drawSVGToCanvas(() => {
+      // We can't perfectly restore on resize but that's ok
+    });
+  } else if (svgImageElement) {
+    drawSVGToCanvas();
+  }
+}
+
+function drawSVGToCanvas(cb) {
+  if (!svgImageElement) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(svgImageElement, 0, 0, canvas.width, canvas.height);
+  if (cb) cb();
+}
+
+function loadDrawingToCanvas(drawing) {
+  state.currentDrawing = drawing;
+  state.history = [];
+  glitterParticles = [];
+
+  const blob = new Blob([drawing.svg], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    svgImageElement = img;
+    resizeCanvas();
+
+    // Restore saved coloring if exists
+    const saved = state.savedColorings[drawing.id];
+    if (saved) {
+      const restoreImg = new Image();
+      restoreImg.onload = () => {
+        ctx.drawImage(restoreImg, 0, 0, canvas.width, canvas.height);
+        // Re-draw SVG outlines on top
+        ctx.drawImage(svgImageElement, 0, 0, canvas.width, canvas.height);
+        pushHistory();
+      };
+      restoreImg.src = saved;
+    } else {
+      pushHistory();
+    }
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+}
+
+function pushHistory() {
+  if (state.history.length >= 20) state.history.shift();
+  state.history.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+}
+
+// ═══════════════════════════════════════════════════════
+//  OUTILS DE DESSIN
+// ═══════════════════════════════════════════════════════
+
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  return {
+    x: (touch.clientX - rect.left) * (canvas.width / rect.width),
+    y: (touch.clientY - rect.top) * (canvas.height / rect.height),
+  };
+}
+
+function isBlackPixel(data, x, y, w) {
+  const i = (Math.round(y) * w + Math.round(x)) * 4;
+  return data[i] < 60 && data[i+1] < 60 && data[i+2] < 60 && data[i+3] > 128;
+}
+
+// Brush painting with color containment
+let lastPos = null;
+
+function paintAt(x, y, pressure=1) {
+  if (state.currentTool === 'fill') return;
+
+  const tool = state.currentTool;
+  const color = state.currentColor;
+  const brushSize = tool === 'glitter' ? 18 : 22;
+
+  if (tool === 'glitter') {
+    // Add glitter particles
+    for (let i = 0; i < 5; i++) {
+      glitterParticles.push({
+        x: x + (Math.random()-0.5)*brushSize,
+        y: y + (Math.random()-0.5)*brushSize,
+        color,
+        r: Math.random()*5+2,
+        alpha: Math.random()*0.8+0.2,
+        angle: Math.random()*Math.PI*2,
+      });
+    }
+    renderGlitter();
+    return;
+  }
+
+  // Normal brush — paint with containment
+  paintWithContainment(x, y, brushSize, color);
+}
+
+function paintWithContainment(cx, cy, radius, color) {
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const w = canvas.width;
+  const h = canvas.height;
+
+  const r = parseInt(color.slice(1,3),16);
+  const g = parseInt(color.slice(3,5),16);
+  const b = parseInt(color.slice(5,7),16);
+
+  const radiusI = Math.round(radius);
+
+  for (let dy = -radiusI; dy <= radiusI; dy++) {
+    for (let dx = -radiusI; dx <= radiusI; dx++) {
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist > radiusI) continue;
+
+      const px = Math.round(cx + dx);
+      const py = Math.round(cy + dy);
+      if (px < 0 || px >= w || py < 0 || py >= h) continue;
+
+      // Don't paint over black pixels (outlines)
+      if (isBlackPixel(data, px, py, w)) continue;
+
+      const alpha = Math.max(0, 1 - dist/radiusI) * 0.85;
+      const idx = (py * w + px) * 4;
+
+      // Alpha blend
+      const a = alpha;
+      data[idx]   = Math.round(data[idx]   * (1-a) + r * a);
+      data[idx+1] = Math.round(data[idx+1] * (1-a) + g * a);
+      data[idx+2] = Math.round(data[idx+2] * (1-a) + b * a);
+      data[idx+3] = 255;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  // Redraw SVG outlines on top to keep them crisp
+  if (svgImageElement) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(svgImageElement, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+}
+
+function renderGlitter() {
+  // Paint glitter particles
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const w = canvas.width;
+  const h = canvas.height;
+
+  for (const p of glitterParticles) {
+    const r = parseInt(p.color.slice(1,3),16);
+    const g = parseInt(p.color.slice(3,5),16);
+    const b = parseInt(p.color.slice(5,7),16);
+
+    const pr = Math.round(p.r);
+    for (let dy = -pr; dy <= pr; dy++) {
+      for (let dx = -pr; dx <= pr; dx++) {
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist > pr) continue;
+        const px = Math.round(p.x + dx);
+        const py = Math.round(p.y + dy);
+        if (px < 0 || px >= w || py < 0 || py >= h) continue;
+        if (isBlackPixel(data, px, py, w)) continue;
+
+        const alpha = p.alpha * (1 - dist/pr);
+        const idx = (py * w + px) * 4;
+        data[idx]   = Math.round(data[idx]   * (1-alpha) + r * alpha);
+        data[idx+1] = Math.round(data[idx+1] * (1-alpha) + g * alpha);
+        data[idx+2] = Math.round(data[idx+2] * (1-alpha) + b * alpha);
+        data[idx+3] = 255;
+
+        // White sparkle dot in center
+        if (dist < pr * 0.3 && Math.random() > 0.7) {
+          data[idx] = 255; data[idx+1] = 255; data[idx+2] = 255;
+        }
+      }
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  if (svgImageElement) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(svgImageElement, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+
+  glitterParticles = [];
+}
+
+// ═══════════════════════════════════════════════════════
+//  FLOOD FILL
+// ═══════════════════════════════════════════════════════
+
+function floodFill(startX, startY, fillColor) {
+  startX = Math.round(startX);
+  startY = Math.round(startY);
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const w = canvas.width;
+  const h = canvas.height;
+
+  const idx = (startY * w + startX) * 4;
+  const startR = data[idx], startG = data[idx+1], startB = data[idx+2];
+
+  // Don't fill on black pixels
+  if (startR < 60 && startG < 60 && startB < 60) return;
+
+  const fr = parseInt(fillColor.slice(1,3),16);
+  const fg = parseInt(fillColor.slice(3,5),16);
+  const fb = parseInt(fillColor.slice(5,7),16);
+
+  // BFS flood fill
+  const stack = [[startX, startY]];
+  const visited = new Uint8Array(w * h);
+  visited[startY * w + startX] = 1;
+
+  const tolerance = 50;
+
+  function similar(i) {
+    return Math.abs(data[i]-startR) < tolerance &&
+           Math.abs(data[i+1]-startG) < tolerance &&
+           Math.abs(data[i+2]-startB) < tolerance &&
+           data[i+3] > 50;
+  }
+
+  while (stack.length > 0) {
+    const [x, y] = stack.pop();
+
+    const i = (y * w + x) * 4;
+
+    // Skip black outline pixels
+    if (isBlackPixel(data, x, y, w)) continue;
+    if (!similar(i)) continue;
+
+    data[i] = fr; data[i+1] = fg; data[i+2] = fb; data[i+3] = 255;
+
+    const neighbors = [[x+1,y],[x-1,y],[x,y+1],[x,y-1]];
+    for (const [nx, ny] of neighbors) {
+      if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+        const ni = ny * w + nx;
+        if (!visited[ni]) {
+          visited[ni] = 1;
+          stack.push([nx, ny]);
+        }
+      }
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  // Redraw outlines
+  if (svgImageElement) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(svgImageElement, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  ÉVÉNEMENTS CANVAS
+// ═══════════════════════════════════════════════════════
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const pos = getPos(e);
+  state.isDrawing = true;
+  lastPos = pos;
+
+  if (state.currentTool === 'fill') {
+    pushHistory();
+    floodFill(pos.x, pos.y, state.currentColor);
+    saveColoring();
+    updateGalleryPreview();
+  } else {
+    paintAt(pos.x, pos.y);
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!state.isDrawing) return;
+  const pos = getPos(e);
+
+  if (state.currentTool !== 'fill') {
+    // Interpolate for smooth stroke
+    if (lastPos) {
+      const dx = pos.x - lastPos.x;
+      const dy = pos.y - lastPos.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const steps = Math.max(1, Math.floor(dist / 4));
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        paintAt(lastPos.x + dx*t, lastPos.y + dy*t);
+      }
+    }
+    lastPos = pos;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (state.isDrawing) {
+    pushHistory();
+    saveColoring();
+    updateGalleryPreview();
+  }
+  state.isDrawing = false;
+  lastPos = null;
+}, { passive: false });
+
+// Mouse support (pour test desktop)
+canvas.addEventListener('mousedown', e => {
+  state.isDrawing = true;
+  lastPos = getPos(e);
+  if (state.currentTool === 'fill') {
+    pushHistory();
+    floodFill(lastPos.x, lastPos.y, state.currentColor);
+    saveColoring();
+  } else {
+    paintAt(lastPos.x, lastPos.y);
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  if (!state.isDrawing || state.currentTool === 'fill') return;
+  const pos = getPos(e);
+  if (lastPos) {
+    const dx = pos.x - lastPos.x, dy = pos.y - lastPos.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    const steps = Math.max(1, Math.floor(dist/4));
+    for (let i = 0; i <= steps; i++) {
+      const t = i/steps;
+      paintAt(lastPos.x+dx*t, lastPos.y+dy*t);
+    }
+  }
+  lastPos = pos;
+});
+canvas.addEventListener('mouseup', e => {
+  if (state.isDrawing) { pushHistory(); saveColoring(); updateGalleryPreview(); }
+  state.isDrawing = false; lastPos = null;
+});
+
+// ═══════════════════════════════════════════════════════
+//  SAUVEGARDE
+// ═══════════════════════════════════════════════════════
+
+function saveColoring() {
+  if (!state.currentDrawing) return;
+  try {
+    state.savedColorings[state.currentDrawing.id] = canvas.toDataURL('image/png', 0.6);
+    localStorage.setItem('colorings', JSON.stringify(state.savedColorings));
+  } catch(e) {}
+}
+
+function loadSavedColorings() {
+  try {
+    const saved = localStorage.getItem('colorings');
+    if (saved) state.savedColorings = JSON.parse(saved);
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════
+//  UI — GALERIE
+// ═══════════════════════════════════════════════════════
+
+function renderGallery() {
+  const tabsEl = document.getElementById('theme-tabs');
+  const gridEl = document.getElementById('drawings-grid');
+
+  // Tabs
+  tabsEl.innerHTML = '';
+  THEMES.forEach(theme => {
+    const tab = document.createElement('div');
+    tab.className = 'theme-tab' + (theme.id === state.currentTheme ? ' active' : '');
+    tab.textContent = theme.label;
+    tab.addEventListener('click', () => {
+      state.currentTheme = theme.id;
+      renderGallery();
+    });
+    tabsEl.appendChild(tab);
+  });
+
+  // Grid
+  gridEl.innerHTML = '';
+  const drawings = DRAWINGS[state.currentTheme] || [];
+  drawings.forEach((drawing, i) => {
+    const card = document.createElement('div');
+    card.className = 'drawing-card';
+    card.style.animationDelay = (i * 0.04) + 's';
+
+    const saved = state.savedColorings[drawing.id];
+    if (saved) {
+      // Show colored preview
+      const img = document.createElement('img');
+      img.src = saved;
+      img.style.cssText = 'width:90%;height:90%;object-fit:contain;border-radius:8px';
+      card.appendChild(img);
+
+      const badge = document.createElement('div');
+      badge.className = 'done-badge';
+      badge.textContent = '✅';
+      card.appendChild(badge);
+    } else {
+      // Show SVG outline
+      card.innerHTML = drawing.svg;
+    }
+
+    card.addEventListener('click', () => openColoringScreen(drawing));
+    gridEl.appendChild(card);
+  });
+}
+
+function updateGalleryPreview() {
+  // Will be called on next gallery open
+}
+
+// ═══════════════════════════════════════════════════════
+//  UI — OUTILS & PALETTE
+// ═══════════════════════════════════════════════════════
+
+function initSidebar() {
+  // Tool buttons
+  document.getElementById('tool-brush').addEventListener('click', () => selectTool('brush'));
+  document.getElementById('tool-glitter').addEventListener('click', () => selectTool('glitter'));
+  document.getElementById('tool-fill').addEventListener('click', () => selectTool('fill'));
+
+  // Palette
+  const paletteEl = document.getElementById('palette');
+  COLORS.forEach(color => {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch' + (color === state.currentColor ? ' selected' : '');
+    swatch.style.background = color;
+    if (color === '#FFFFFF') {
+      swatch.style.border = '4px solid #ccc';
+    }
+    swatch.addEventListener('click', () => {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+      swatch.classList.add('selected');
+      state.currentColor = color;
+    });
+    paletteEl.appendChild(swatch);
+  });
+
+  // Action buttons
+  document.getElementById('btn-undo').addEventListener('click', () => {
+    if (state.history.length > 1) {
+      state.history.pop();
+      ctx.putImageData(state.history[state.history.length-1], 0, 0);
+      if (svgImageElement) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.drawImage(svgImageElement, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
+      saveColoring();
+    }
+  });
+
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    if (svgImageElement) {
+      drawSVGToCanvas(() => pushHistory());
+      delete state.savedColorings[state.currentDrawing?.id];
+      try { localStorage.setItem('colorings', JSON.stringify(state.savedColorings)); } catch(e) {}
+    }
+  });
+
+  document.getElementById('btn-back').addEventListener('click', () => {
+    document.getElementById('coloring-screen').classList.remove('active');
+    document.getElementById('gallery-screen').style.display = 'flex';
+    renderGallery();
+  });
+}
+
+function selectTool(tool) {
+  state.currentTool = tool;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tool-'+tool).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+
+function openColoringScreen(drawing) {
+  document.getElementById('gallery-screen').style.display = 'none';
+  document.getElementById('coloring-screen').classList.add('active');
+  loadDrawingToCanvas(drawing);
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+
+loadSavedColorings();
+renderGallery();
+initSidebar();
+
+window.addEventListener('resize', () => {
+  if (document.getElementById('coloring-screen').classList.contains('active')) {
+    resizeCanvas();
+  }
+});
+
+// Enregistrement Service Worker (offline)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
