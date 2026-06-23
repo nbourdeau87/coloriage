@@ -963,7 +963,13 @@ function loadDrawingToCanvas(drawing) {
   state.currentDrawing = drawing;
   state.history = [];
 
-  // Génère un SVG avec fond TRANSPARENT (pas blanc) pour le outline canvas
+  // ── Nettoyage complet des deux canvas ──
+  paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+  paintCtx.fillStyle = 'white';
+  paintCtx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+  outlineCtx.clearRect(0, 0, outlineCanvas.width, outlineCanvas.height);
+  svgImageElement = null;
+  outlinePixels   = null;
   // On remplace fill:white par fill:none dans le SVG afin que seuls les traits noirs soient opaques
   const svgTransparent = drawing.svg
     .replace(/fill:\s*white/g, 'fill:none')
