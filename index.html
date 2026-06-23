@@ -388,9 +388,10 @@
 // ═══════════════════════════════════════════════════════
 
 const THEMES = [
-  { id: 'animaux', label: '🦁 Animaux' },
-  { id: 'dinos',   label: '🦕 Dinos'   },
-  { id: 'vehicules', label: '🚗 Véhicules' },
+  { id: 'animaux',      label: '🦁 Animaux'      },
+  { id: 'dinos',        label: '🦕 Dinos'         },
+  { id: 'vehicules',    label: '🚗 Véhicules'     },
+  { id: 'construction', label: '🏗️ Construction'  },
 ];
 
 const DRAWINGS = {
@@ -413,7 +414,11 @@ const DRAWINGS = {
     { id: 'camion',  name: 'Camion',  svg: svgCamion()  },
     { id: 'avion',   name: 'Avion',   svg: svgAvion()   },
     { id: 'bateau',  name: 'Bateau',  svg: svgBateau()  },
-    { id: 'bulldozer', name: 'Bulldozer', svg: svgBulldozer() },
+  ],
+  construction: [
+    { id: 'bulldozer',   name: 'Bulldozer',   svg: svgBulldozer()   },
+    { id: 'pelleteuse',  name: 'Pelleteuse',  svg: svgPelleteuse()  },
+    { id: 'betoniere',   name: 'Bétonnière',  svg: svgBetoniere()   },
   ],
 };
 
@@ -885,7 +890,53 @@ function svgBulldozer() {
 </svg>`;
 }
 
+function svgPelleteuse() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="377.673" y1="496.32" x2="377.673" y2="529.957"/>
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="665.547" y1="529.957" x2="665.547" y2="498.802"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M290.821,168.684c0,5.629-4.58,10.236-10.236,10.236c-5.656,0-10.236-4.608-10.236-10.236c0-5.656,4.58-10.236,10.236-10.236C286.24,158.448,290.821,163.028,290.821,168.684z"/>
+<polygon fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" points="347.3,100.064 313.832,158.31 274.707,132.346 246.454,174.561 285.551,207.533 146.214,450.089 121.465,493.159 56.901,500.691 40.346,454.421 280.584,68.61"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M313.832,158.31l-39.125-25.964l-28.254,42.215l39.097,32.972l58.577,49.416h118.367L313.832,158.31z M280.584,178.921c-5.656,0-10.236-4.608-10.236-10.236c0-5.656,4.58-10.236,10.236-10.236c5.656,0,10.236,4.58,10.236,10.236C290.821,174.313,286.24,178.921,280.584,178.921z"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M552.249,289.59v65.502H449.747V497.85H311.348V286.775c0-16.472,13.354-29.826,29.826-29.826h178.406C537.626,256.949,552.249,271.573,552.249,289.59z"/>
+<rect x="331.135" y="282.521" fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" width="100.654" height="167.558"/>
+<polyline fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" points="331.135,419.406 413.937,367.807 413.937,282.521"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M743.402,394.106V497.85H449.747v-20.887h261.539V355.699C729.551,358.954,743.402,374.902,743.402,394.106z"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M711.286,355.699v121.264H449.747V355.092h254.641C706.733,355.092,709.051,355.312,711.286,355.699z"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M121.465,493.159l45.32,80.451l60,35c0,0-144.042,46.041-178.898-25.144s-7.54-129.046-7.54-129.046"/>
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="269.101" y1="195.502" x2="132.551" y2="423.783"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="107.072" cy="429.115" r="10.233"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="83.512" cy="461.562" r="10.233"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M706.44,663.178H320.192c-34.867,0-63.394-28.527-63.394-63.394v-6.432c0-34.867,28.528-63.394,63.394-63.394H706.44c34.867,0,63.394,28.527,63.394,63.394v6.432C769.835,634.651,741.307,663.178,706.44,663.178z"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M695.498,643.817H325.834c-24.147,0-43.903-19.756-43.903-43.903v-4.454c0-24.146,19.756-43.903,43.903-43.903h369.664c24.146,0,43.903,19.756,43.903,43.903v4.454C739.4,624.061,719.644,643.817,695.498,643.817z"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="354.611" cy="596.922" r="28.666"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="666.29" cy="596.922" r="28.666"/>
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="382.56" y1="596.922" x2="637.624" y2="594.051"/>
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="602.784" y1="377.399" x2="658.784" y2="377.399"/>
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="602.784" y1="391.91" x2="658.784" y2="391.91"/>
+</svg>`;
+}
 
+function svgBetoniere() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M702.547,510.656v80.885h-22.986c0,0-0.183-62.971-63.588-62.971s-62.857,62.971-62.857,62.971h-18.508c0,0-1.371-61.6-62.971-61.6c-61.6,0-63.154,61.6-63.154,61.6H235.745c0,0-6.352-62.971-64.022-62.971c-57.671,0-66.216,62.971-66.216,62.971H80.145v-27.944h-36.33V456.733l72.225-107.687h156.72v161.61H702.547z"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M702.547,322.93c-2.902,27.076-11.607,46.475-21.638,60.252c-18.462,25.294-41.425,31.623-41.425,31.623l-11.653,5.164l-0.891,0.388l-0.48-47.388c0,0,1.371-15.08-17.205-15.08c-18.599,0-17.068,15.766-17.068,15.766v62.08l-28.561,12.635c0,0-68.775,30.846-122.927,53.946s-104.876-13.024-104.876-13.024L272.76,349.046c3.976-65.759,43.321-79.742,43.321-79.742l227.711-103.528c0,0,35.324-17.639,100.124,18.005L702.547,322.93z"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M592.187,373.654c0,0-1.531-15.766,17.068-15.766c18.576,0,17.205,15.08,17.205,15.08l0.48,47.388l0.891,89.682l-35.644,0.617V373.654z"/>
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="707.712" y1="434.232" x2="636.174" y2="510.032"/>
+<polyline fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" points="679.57,382.306 776.913,444.821 781.375,519.495 627.831,419.962"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M80.145,563.597v40.442H28.483c-5.484,0-9.916-4.433-9.916-9.916v-20.61c0-5.484,4.433-9.916,9.916-9.916H80.145z"/>
+<polygon fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" points="63.032,457.756 189.734,457.756 189.734,367.21 125.191,367.21"/>
+<rect x="206.434" y="364.89" fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" width="45.923" height="96.485"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="301.801" cy="481.966" r="23.687"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="171.728" cy="591.543" r="23.697"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="171.728" cy="591.543" r="46.697"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="470.753" cy="591.543" r="23.697"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="470.753" cy="591.543" r="46.697"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="618.08" cy="591.543" r="23.697"/>
+<circle fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" cx="618.08" cy="591.543" r="46.697"/>
+<line fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" x1="272.76" y1="510.656" x2="272.76" y2="591.543"/>
+<path fill="none" stroke="#111" stroke-width="10" stroke-miterlimit="10" d="M301.801,412.483c0,0,83.124,15.209,135.324-63.437s-29.7-99.346,90.9-95.746c120.6,3.6,158.905,32.566,158.905,32.566"/>
+</svg>`;
+}
 
 const COLORS = [
   '#FF0000','#FF4500','#FF8C00','#FFD700','#FFFF00',
@@ -1100,17 +1151,16 @@ function renderBrushPoints(pts) {
     tCtx.fill();
   }
 
-  // 3. Effacer les pixels de contour sur le canvas temporaire
-  //    (on "perce" la peinture là où il y a des traits noirs)
-  if (outlinePixels) {
+  // 3. Effacer les pixels hors zone ET les pixels de contour
+  if (outlinePixels || zoneMask) {
     const tData  = tCtx.getImageData(0, 0, size, size);
     const td     = tData.data;
     for (let i = 0; i < td.length; i += 4) {
-      const pi = i >> 2; // index pixel
+      const pi = i >> 2;
       const ox = pi % size;
       const oy = (pi / size) | 0;
-      if (isOutlinePixel(ox, oy)) {
-        td[i+3] = 0; // rend transparent = ne peint pas sur contour
+      if (isOutlinePixel(ox, oy) || !isInZone(ox, oy)) {
+        td[i+3] = 0;
       }
     }
     tCtx.putImageData(tData, 0, 0);
@@ -1155,13 +1205,13 @@ function renderGlitterPoints(pts) {
   }
   tCtx.globalAlpha = 1;
 
-  // Masque contours
-  if (outlinePixels) {
+  // Masque contours + zone
+  if (outlinePixels || zoneMask) {
     const tData = tCtx.getImageData(0, 0, size, size);
     const td    = tData.data;
     for (let i = 0; i < td.length; i += 4) {
       const pi = i >> 2;
-      if (isOutlinePixel(pi % size, (pi / size)|0)) td[i+3] = 0;
+      if (isOutlinePixel(pi % size, (pi / size)|0) || !isInZone(pi % size, (pi / size)|0)) td[i+3] = 0;
     }
     tCtx.putImageData(tData, 0, 0);
   }
@@ -1169,10 +1219,57 @@ function renderGlitterPoints(pts) {
   paintCtx.drawImage(tmp, 0, 0);
 }
 
-function paintAt(x, y) {
-  if (state.currentTool === 'fill') return;
-  pendingPoints.push({ x, y, color: state.currentColor, tool: state.currentTool });
-  scheduleRender();
+// ═══════════════════════════════════════════════════════
+//  MASQUE DE ZONE — calculé au touchstart, actif pendant tout le stroke
+//  Principe : flood fill silencieux depuis le point de départ
+//  → Uint8Array where 1 = pixel autorisé à peindre
+// ═══════════════════════════════════════════════════════
+
+let zoneMask = null; // Uint8Array, même taille que le canvas
+
+function computeZoneMask(startX, startY) {
+  const w = paintCanvas.width;
+  const h = paintCanvas.height;
+
+  startX = Math.round(startX);
+  startY = Math.round(startY);
+
+  // Si on commence sur un contour, pas de masque (on peint nulle part)
+  if (isOutlinePixel(startX, startY)) {
+    zoneMask = new Uint8Array(w * h); // tout à 0
+    return;
+  }
+
+  const mask    = new Uint8Array(w * h);
+  const stack   = [startY * w + startX];
+  const visited = new Uint8Array(w * h);
+  visited[startY * w + startX] = 1;
+
+  while (stack.length > 0) {
+    const idx = stack.pop();
+    const x   = idx % w;
+    const y   = (idx / w) | 0;
+
+    // Bloqué par contour
+    if (isOutlinePixel(x, y)) continue;
+
+    mask[idx] = 1;
+
+    // 4 voisins
+    if (x + 1 < w  && !visited[idx + 1])     { visited[idx + 1] = 1;     stack.push(idx + 1); }
+    if (x - 1 >= 0 && !visited[idx - 1])     { visited[idx - 1] = 1;     stack.push(idx - 1); }
+    if (y + 1 < h  && !visited[idx + w])     { visited[idx + w] = 1;     stack.push(idx + w); }
+    if (y - 1 >= 0 && !visited[idx - w])     { visited[idx - w] = 1;     stack.push(idx - w); }
+  }
+
+  zoneMask = mask;
+}
+
+function isInZone(x, y) {
+  if (!zoneMask) return true; // pas de masque = pas de restriction
+  const px = Math.round(x), py = Math.round(y);
+  if (px < 0 || px >= paintCanvas.width || py < 0 || py >= paintCanvas.height) return false;
+  return zoneMask[py * paintCanvas.width + px] === 1;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1245,6 +1342,7 @@ outlineCanvas.addEventListener('touchstart', e => {
     floodFill(pos.x, pos.y, state.currentColor);
     saveColoring();
   } else {
+    computeZoneMask(pos.x, pos.y);
     paintAt(pos.x, pos.y);
   }
 }, { passive: false });
@@ -1269,14 +1367,15 @@ outlineCanvas.addEventListener('touchend', e => {
   e.preventDefault();
   if (state.isDrawing) { pushHistory(); saveColoring(); }
   state.isDrawing = false;
-  lastPos = null;
+  lastPos  = null;
+  zoneMask = null; // libère le masque entre deux strokes
 }, { passive: false });
 
 // Mouse (test desktop)
 outlineCanvas.addEventListener('mousedown', e => {
   state.isDrawing = true; lastPos = getPos(e);
   if (state.currentTool === 'fill') { pushHistory(); floodFill(lastPos.x, lastPos.y, state.currentColor); saveColoring(); }
-  else paintAt(lastPos.x, lastPos.y);
+  else { computeZoneMask(lastPos.x, lastPos.y); paintAt(lastPos.x, lastPos.y); }
 });
 outlineCanvas.addEventListener('mousemove', e => {
   if (!state.isDrawing || state.currentTool === 'fill') return;
@@ -1290,7 +1389,7 @@ outlineCanvas.addEventListener('mousemove', e => {
 });
 outlineCanvas.addEventListener('mouseup', e => {
   if (state.isDrawing) { pushHistory(); saveColoring(); }
-  state.isDrawing = false; lastPos = null;
+  state.isDrawing = false; lastPos = null; zoneMask = null;
 });
 
 // ═══════════════════════════════════════════════════════
